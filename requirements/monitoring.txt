@@ -1,0 +1,4 @@
+-r base.txt
+# Pin evidently exactly — its API moves across minor versions.
+evidently==0.4.40
+pandas~=2.2

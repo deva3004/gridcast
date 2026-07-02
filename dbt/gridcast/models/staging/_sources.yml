@@ -1,0 +1,29 @@
+version: 2
+
+# `source()` declares the raw tables dbt reads FROM (loaded by COPY INTO).
+# Referencing them via {{ source('eia', 'region_data') }} — rather than a
+# hardcoded table name — is what lets dbt build lineage and lets you swap the
+# physical location without touching model SQL.
+sources:
+  - name: eia
+    database: GRIDCAST
+    schema: RAW
+    tables:
+      - name: region_data
+        identifier: EIA_REGION_DATA
+        description: >
+          Raw EIA hourly demand (D) and day-ahead forecast (DF) records, one
+          JSON object per row in the `record` VARIANT column. Partition columns
+          (region, type, ingest_date) derived from the S3 path at load time.
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: {count: 36, period: hour}
+          error_after: {count: 72, period: hour}
+        columns:
+          - name: region
+            tests: [not_null]
+          - name: type
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ["D", "DF"]

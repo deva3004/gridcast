@@ -1,0 +1,23 @@
+[project]
+name = "gridcast"
+version = "0.1.0"
+description = "End-to-end MLOps platform for short-term electricity grid demand forecasting."
+requires-python = ">=3.11"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+# Makes `from src.logger import get_logger` work after `pip install -e .`
+packages = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

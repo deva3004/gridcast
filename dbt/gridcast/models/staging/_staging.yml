@@ -1,0 +1,32 @@
+version: 2
+
+# Data-quality tests run by `dbt test`. This is your answer to "how do you know
+# the data's good?" — the checks are code, versioned next to the model.
+models:
+  - name: stg_eia__region_data
+    description: Cleaned, typed one-row-per-hour EIA demand & forecast records.
+    columns:
+      - name: demand_hour_utc
+        description: Hourly timestamp (UTC).
+        tests: [not_null]
+      - name: respondent
+        description: Balancing authority code (PJM/CISO/ERCO).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["PJM", "CISO", "ERCO"]
+      - name: series_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["D", "DF"]
+      # value can be null for some hours (kept, not dropped) — no not_null here.
+
+    # A (respondent, series_type, hour) should be unique. Composite uniqueness
+    # via dbt_utils; a duplicate means a partition got double-loaded.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - respondent
+            - series_type
+            - demand_hour_utc

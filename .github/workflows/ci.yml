@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install
+        run: pip install -e . -r requirements/serve.txt -r requirements/dev.txt
+
+      - name: Ruff
+        run: ruff check src tests
+
+      - name: Tests
+        run: pytest -q
+
+  dbt-parse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt
+        run: pip install -r requirements/dbt.txt
+
+      # `dbt parse` validates the project + refs compile without a live
+      # warehouse. Full `dbt build` would need Snowflake creds as CI secrets.
+      - name: dbt parse
+        working-directory: dbt/gridcast
+        env:
+          SNOWFLAKE_ACCOUNT: "dummy"
+          SNOWFLAKE_USER: "dummy"
+          SNOWFLAKE_PASSWORD: "dummy"
+        run: dbt deps && dbt parse --profiles-dir .

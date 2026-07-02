@@ -1,0 +1,45 @@
+# Secrets / env
+.env
+*.env
+!.env.example
+
+# Contains a hardcoded AWS key/secret in the STAGE CREDENTIALS clause —
+# swap to a STORAGE INTEGRATION before this needs to be shared/committed.
+snowflake/setup.sql
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local ingestion output (dry-run landing)
+data/
+
+# dbt
+dbt/gridcast/target/
+dbt/gridcast/dbt_packages/
+dbt/gridcast/logs/
+profiles.yml
+
+# MLflow / models
+mlruns/
+mlartifacts/
+*.pkl
+*.txt.model
+
+# Airflow
+airflow/logs/
+airflow/airflow.db
+airflow/airflow.cfg
+airflow/webserver_config.py
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
