@@ -4,9 +4,9 @@ Keeps region/series-type/retry/pagination knobs out of code so they can be
 tuned (or a new region added) without touching ingest_eia.py or run.py.
 """
 
-from __future__ import annotations # this is needed for the type hinting of RetryConfig and IngestionConfig in ingest_eia.py, example: def _sleep_before_retry(attempt: int, retry_cfg: RetryConfig) -> None:
+from __future__ import annotations  # lets ingest_eia.py type-hint with RetryConfig/IngestionConfig
 
-from dataclasses import dataclass 
+from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
@@ -14,7 +14,7 @@ import yaml
 CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "data_ingestion.config"
 
 
-@dataclass(frozen=True) #frozen=True makes the dataclass immutable, meaning that once an instance is created, its attributes cannot be modified. This is useful for configuration objects that should not change after they are initialized.
+@dataclass(frozen=True)  # frozen=True: immutable once created, right for config objects
 class RetryConfig:
     max_attempts: int
     backoff_factor: float

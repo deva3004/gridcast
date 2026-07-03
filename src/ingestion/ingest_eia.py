@@ -138,7 +138,9 @@ def build_manifest(
     }
 
 
-def _partition_key(s3_prefix: str, region: str, series_type: str, ingest_date: str, filename: str) -> str:
+def _partition_key(
+    s3_prefix: str, region: str, series_type: str, ingest_date: str, filename: str
+) -> str:
     return f"{s3_prefix}/region={region}/type={series_type}/ingest_date={ingest_date}/{filename}"
 
 
@@ -176,7 +178,13 @@ def write_local(
     ingest_date: str,
 ) -> Any:
     """Dry-run landing: mirror the S3 key layout under a local directory."""
-    partition_dir = out_dir / s3_prefix / f"region={region}" / f"type={series_type}" / f"ingest_date={ingest_date}"
+    partition_dir = (
+        out_dir
+        / s3_prefix
+        / f"region={region}"
+        / f"type={series_type}"
+        / f"ingest_date={ingest_date}"
+    )
     partition_dir.mkdir(parents=True, exist_ok=True)
 
     (partition_dir / "data.ndjson").write_bytes(_to_ndjson(pages))
