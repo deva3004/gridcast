@@ -1,0 +1,27 @@
+# dbt profile — every value comes from a SNOWFLAKE_* env var (see
+# .env.example). No secrets live in this file, so it's safe to commit and
+# is what lets the dbt-parse CI job find a profile at all.
+#
+# dbt does NOT read .env itself (that's python-dotenv, for Python processes
+# only) — export the vars into your shell before running dbt locally, e.g.:
+#   set -a && source .env && set +a
+#   cd dbt/gridcast && dbt build --profiles-dir .
+#
+# role/warehouse/database/schema have defaults so `dbt parse` can resolve
+# this profile in CI with only SNOWFLAKE_ACCOUNT/_USER/_PASSWORD set (dummy
+# values there — parse never opens a real connection).
+
+gridcast:
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: "{{ env_var('SNOWFLAKE_ROLE', 'ACCOUNTADMIN') }}"
+      warehouse: "{{ env_var('SNOWFLAKE_WAREHOUSE', 'COMPUTE_WH') }}"
+      database: "{{ env_var('SNOWFLAKE_DATABASE', 'GRIDCAST') }}"
+      schema: "{{ env_var('SNOWFLAKE_SCHEMA', 'dbt_schema') }}"
+      threads: 1
+      authenticator: snowflake
+  target: dev

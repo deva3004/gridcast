@@ -25,7 +25,6 @@ data/
 dbt/gridcast/target/
 dbt/gridcast/dbt_packages/
 dbt/gridcast/logs/
-profiles.yml
 
 # MLflow / models
 mlruns/
