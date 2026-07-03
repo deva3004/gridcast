@@ -196,9 +196,10 @@ gridcast/
 ├── .github/
 │   └── workflows/
 │       └── ci.yml              # lint + dbt parse + API tests
-├── ingestion/
-│   ├── ingest_eia.py           # paginated EIA → S3 raw landing
-│   └── requirements.txt
+├── src/ingestion/
+│   ├── data_ingestion.py       # config loader (config/data_ingestion.config)
+│   ├── ingest_eia.py           # EIA client: pagination, retry, NDJSON + manifest writer
+│   └── run.py                  # CLI: backfill driver (make ingest-dry / make ingest)
 ├── snowflake/
 │   └── setup.sql               # warehouse, db, schemas, file format, external stage
 ├── dbt/
@@ -248,11 +249,11 @@ cd gridcast
 cp .env.example .env          # fill in EIA_API_KEY, S3 bucket, Snowflake creds
 
 # 2. Land data (inspect locally first, no AWS needed)
-pip install -r ingestion/requirements.txt
-python ingestion/ingest_eia.py --start 2024-01-01T00 --end 2024-02-01T00 --dry-run
+pip install -e . -r requirements/base.txt
+python -m src.ingestion.run --dry-run          # writes NDJSON + manifests under ./data/
 
-# 2b. Real backfill to S3
-python ingestion/ingest_eia.py --start 2021-01-01T00 --end 2025-01-01T00
+# 2b. Real backfill to S3 (~5 years, all regions/types, per config/data_ingestion.config)
+python -m src.ingestion.run
 
 # 3. Warehouse setup + transformations
 #    run snowflake/setup.sql, then:
