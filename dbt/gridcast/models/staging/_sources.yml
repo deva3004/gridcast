@@ -7,23 +7,21 @@ version: 2
 sources:
   - name: eia
     database: GRIDCAST
-    schema: RAW
+    schema: STAGING
     tables:
       - name: region_data
-        identifier: EIA_REGION_DATA
+        identifier: RAW_EIA_DATA
         description: >
-          Raw EIA hourly demand (D) and day-ahead forecast (DF) records, one
-          JSON object per row in the `record` VARIANT column. Partition columns
-          (region, type, ingest_date) derived from the S3 path at load time.
-        loaded_at_field: _loaded_at
+          Raw EIA API responses, one full JSON response object per row in the
+          `payload` VARIANT column (one row per region/type/ingest_date file
+          COPY INTO landed). Flattening `payload:response:data` into one row
+          per hourly reading happens in the stg_eia__region_data model.
+        loaded_at_field: loaded_at
         freshness:
           warn_after: {count: 36, period: hour}
           error_after: {count: 72, period: hour}
         columns:
-          - name: region
+          - name: payload
             tests: [not_null]
-          - name: type
-            tests:
-              - not_null
-              - accepted_values:
-                  values: ["D", "DF"]
+          - name: source_file
+            tests: [not_null]
