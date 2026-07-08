@@ -1,0 +1,23 @@
+version: 2
+
+models:
+  - name: int_eia__demand_forecast
+    description: >
+      One row per (hour, respondent) with actual demand (D) and EIA's
+      day-ahead forecast (DF) pivoted into their own columns.
+    columns:
+      - name: demand_hour_utc
+        tests: [not_null]
+      - name: respondent
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["PJM", "CISO", "ERCO"]
+      # demand_mwh / forecast_mwh can both be null for some hours (kept, not
+      # dropped) — no not_null here, mirrors staging.
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - respondent
+            - demand_hour_utc
