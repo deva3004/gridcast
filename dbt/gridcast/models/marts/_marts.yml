@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: fct_demand_features
+    description: >
+      One row per (hour, respondent) feature table for training and serving:
+      actual demand, EIA's day-ahead baseline forecast, lag features
+      (t-1h/t-24h/t-168h), rolling mean/std (24h/168h, excluding the current
+      hour to stay point-in-time correct), and calendar features
+      (hour-of-day, day-of-week, month, weekend/holiday flags).
+    columns:
+      - name: demand_hour_utc
+        tests: [not_null]
+      - name: respondent
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["PJM", "CISO", "ERCO"]
+      # demand_mwh / forecast_mwh / lag / rolling columns can be null near
+      # the start of each respondent's history or for hours EIA hasn't
+      # reported yet — kept, not dropped, same as upstream layers.
+      - name: hour_of_day
+        tests: [not_null]
+      - name: day_of_week
+        tests: [not_null]
+      - name: month
+        tests: [not_null]
+      - name: is_weekend
+        tests: [not_null]
+      - name: is_holiday
+        tests: [not_null]
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - respondent
+            - demand_hour_utc
