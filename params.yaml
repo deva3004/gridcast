@@ -1,0 +1,35 @@
+# Parameters for the DVC pipeline (dvc.yaml). Changing a value here and
+# running `dvc repro` only reruns the stages that actually depend on it --
+# e.g. changing num_leaves reruns train but not ingest/clean/featurize.
+
+featurize:
+  horizons: 24 # predict 1h..24h ahead; horizon becomes a model feature (see src/ml/dataset.py)
+
+train:
+  test_frac: 0.2 # last 20% of the timeline (by hour), never shuffled
+  embargo_hours: 24 # gap between train and test so no train target overlaps a test hour
+  random_state: 42
+
+  # One block per algorithm -- each has its own train_*.ipynb notebook (see
+  # dvc.yaml) since the four libraries don't share a hyperparameter
+  # vocabulary (e.g. CatBoost calls its estimator count "iterations", not
+  # "n_estimators"). src/ml/model.py::train_model takes model_type + the
+  # matching block below.
+  lightgbm:
+    num_leaves: 63
+    learning_rate: 0.05
+    n_estimators: 500
+
+  xgboost:
+    max_depth: 8
+    learning_rate: 0.05
+    n_estimators: 500
+
+  catboost:
+    depth: 8
+    learning_rate: 0.05
+    iterations: 500
+
+  random_forest:
+    n_estimators: 300
+    max_depth: 12

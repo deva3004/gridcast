@@ -1,0 +1,4 @@
+-r ml.txt
+jupyter~=1.0
+matplotlib~=3.9
+dvc~=3.55

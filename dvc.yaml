@@ -1,0 +1,45 @@
+stages:
+  ingest:
+    cmd: jupyter nbconvert --to notebook --execute --inplace notebooks/01_ingest.ipynb
+    deps:
+      - notebooks/01_ingest.ipynb
+      - src/warehouse/snowflake_client.py
+    outs:
+      - data/raw/features_raw.csv
+
+  clean:
+    cmd: jupyter nbconvert --to notebook --execute --inplace notebooks/02_clean.ipynb
+    deps:
+      - notebooks/02_clean.ipynb
+      - data/raw/features_raw.csv
+      - src/ml/clean.py
+    outs:
+      - data/interim/features_clean.csv
+
+  featurize:
+    cmd: jupyter nbconvert --to notebook --execute --inplace notebooks/03_features.ipynb
+    deps:
+      - notebooks/03_features.ipynb
+      - data/interim/features_clean.csv
+      - src/ml/dataset.py
+    params:
+      - featurize.horizons
+    outs:
+      - data/processed/train_frame.csv
+
+  train:
+    cmd: jupyter nbconvert --to notebook --execute --inplace notebooks/04_train.ipynb
+    deps:
+      - notebooks/04_train.ipynb
+      - data/processed/train_frame.csv
+      - src/ml/model.py
+    params:
+      - train.test_frac
+      - train.embargo_hours
+      - train.random_state
+      - train.lightgbm
+    outs:
+      - models/model_lightgbm.pkl
+    metrics:
+      - metrics_lightgbm.json:
+          cache: false

@@ -42,3 +42,6 @@ airflow/webserver_config.py
 .DS_Store
 .idea/
 .vscode/
+
+# Personal interview notes, not part of the project
+problem_faced.txt
