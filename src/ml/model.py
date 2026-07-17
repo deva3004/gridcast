@@ -33,7 +33,9 @@ MODEL_BUILDERS = {
 
 def train_model(train_df: pd.DataFrame, model_type: str, params: dict):
     if model_type not in MODEL_BUILDERS:
-        raise ValueError(f"unknown model_type {model_type!r}, expected one of {list(MODEL_BUILDERS)}")
+        raise ValueError(
+            f"unknown model_type {model_type!r}, expected one of {list(MODEL_BUILDERS)}"
+        )
     model = MODEL_BUILDERS[model_type](params)
     model.fit(train_df[FEATURE_COLUMNS], train_df["target_mwh"])
     return model
