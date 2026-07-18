@@ -1,0 +1,7 @@
+{
+  "model_mae": 2650.1713543616797,
+  "model_mape": 0.046188745017657,
+  "baseline_mae": 2315.4658413836987,
+  "baseline_mape": 0.04826122179859089,
+  "mlflow_run_id": "e82c3e20e7994b259f90f15bccf58a54"
+}
