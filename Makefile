@@ -33,3 +33,12 @@ test:  ## run pytest
 
 lint:  ## run ruff
 	ruff check src tests
+
+tf-init:  ## D10 — init the terraform working dir (ECR + GitHub OIDC role)
+	cd terraform && terraform init
+
+tf-plan:  ## D10 — show what terraform would change
+	cd terraform && terraform plan
+
+tf-apply:  ## D10 — create/update the ECR repos + GitHub Actions IAM role
+	cd terraform && terraform apply

@@ -38,6 +38,13 @@ airflow/airflow.db
 airflow/airflow.cfg
 airflow/webserver_config.py
 
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfplan
+terraform/*.auto.tfvars
+
 # OS / editor
 .DS_Store
 .idea/

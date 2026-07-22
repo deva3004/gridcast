@@ -43,3 +43,42 @@ jobs:
           SNOWFLAKE_USER: "dummy"
           SNOWFLAKE_PASSWORD: "dummy"
         run: dbt deps && dbt parse --profiles-dir .
+
+  build-and-push:
+    # Only push images once they're proven good, and only from main --
+    # PRs get built/tested above but never touch the registry.
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [lint-and-test, dbt-parse]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # required for OIDC -> AssumeRoleWithWebIdentity
+      contents: read
+    strategy:
+      matrix:
+        image: [api, dashboard]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push
+        env:
+          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          REPO: gridcast-${{ matrix.image }}
+          SHA_TAG: sha-${{ github.sha }}
+        run: |
+          docker build \
+            -f docker/${{ matrix.image }}.Dockerfile \
+            -t "$REGISTRY/$REPO:$SHA_TAG" \
+            -t "$REGISTRY/$REPO:latest" \
+            .
+          docker push "$REGISTRY/$REPO:$SHA_TAG"
+          docker push "$REGISTRY/$REPO:latest"
