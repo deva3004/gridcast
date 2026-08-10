@@ -11,3 +11,8 @@ output "ecr_repository_urls" {
 output "aws_region" {
   value = var.aws_region
 }
+
+output "alb_dns_name" {
+  description = "Dashboard: http://<this>/  |  API: http://<this>:8080/health"
+  value       = aws_lb.app.dns_name
+}

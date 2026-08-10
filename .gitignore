@@ -52,3 +52,4 @@ terraform/*.auto.tfvars
 
 # Personal interview notes, not part of the project
 problem_faced.txt
+commands.txt

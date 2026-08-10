@@ -15,3 +15,15 @@ variable "project" {
   type        = string
   default     = "gridcast"
 }
+
+variable "instance_type" {
+  description = "EC2 instance type for the app server (runs api+dashboard+mlflow via docker-compose)"
+  type        = string
+  default     = "t3.small"
+}
+
+variable "ssm_snowflake_param_name" {
+  description = "Name of the SecureString SSM parameter holding SNOWFLAKE_* env vars -- created out-of-band, not by Terraform (see problem_faced.txt entry 13)"
+  type        = string
+  default     = "/gridcast/snowflake-env"
+}
