@@ -39,9 +39,3 @@ variable "deploy_artifacts_s3_prefix" {
   type        = string
   default     = "deploy-artifacts"
 }
-
-variable "log_retention_days" {
-  description = "Retention for the app CloudWatch log group"
-  type        = number
-  default     = 14
-}

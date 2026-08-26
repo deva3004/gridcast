@@ -22,7 +22,6 @@ locals {
     dashboard_image  = "${aws_ecr_repository.this["dashboard"].repository_url}:latest"
     artifacts_bucket = var.deploy_artifacts_bucket
     artifacts_prefix = var.deploy_artifacts_s3_prefix
-    log_group_name   = aws_cloudwatch_log_group.app.name
   })
 }
 

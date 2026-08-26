@@ -54,12 +54,6 @@ services:
       --artifacts-destination /mlflow/artifacts
     volumes: ["mlflow_data:/mlflow"]
     restart: unless-stopped
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: "${aws_region}"
-        awslogs-group: "${log_group_name}"
-        awslogs-stream: mlflow
 
   api:
     image: ${api_image}
@@ -71,12 +65,6 @@ services:
     ports: ["8000:8000"]
     depends_on: [mlflow]
     restart: unless-stopped
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: "${aws_region}"
-        awslogs-group: "${log_group_name}"
-        awslogs-stream: api
 
   dashboard:
     image: ${dashboard_image}
@@ -86,12 +74,6 @@ services:
     ports: ["8501:8501"]
     depends_on: [api]
     restart: unless-stopped
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: "${aws_region}"
-        awslogs-group: "${log_group_name}"
-        awslogs-stream: dashboard
 
 volumes:
   mlflow_data:

@@ -1,15 +1,14 @@
 # Observability for the app instance -- deliberately minimal: no Evidently,
-# no Airflow, no new agents. Just (1) a place for container stdout to land,
-# since there's no ssm:SendCommand access to exec into the box directly, and
-# (2) a dashboard over the ALB/target-group metrics CloudWatch already emits
-# for free, which nothing currently visualizes.
-
-resource "aws_cloudwatch_log_group" "app" {
-  name              = "/${var.project}/app"
-  retention_in_days = var.log_retention_days
-
-  tags = { project = var.project }
-}
+# no Airflow, no new agents. A dashboard over the ALB/target-group metrics
+# CloudWatch already emits for free, which nothing currently visualizes.
+#
+# Container-stdout-to-CloudWatch-Logs (awslogs driver) was dropped for now --
+# devTripathi's IAM permissions for the Logs API kept surfacing new
+# action/ARN gaps one at a time (problem_faced.txt entry 15), and it wasn't
+# worth the remaining iteration time against a hard deadline. Revisit later:
+# needs a log group + logs:CreateLogGroup/PutRetentionPolicy/TagResource/
+# ListTagsForResource (unsuffixed ARN) plus logs:CreateLogStream/PutLogEvents
+# (suffixed ARN) on the instance role.
 
 resource "aws_cloudwatch_dashboard" "app" {
   dashboard_name = "${var.project}-app"

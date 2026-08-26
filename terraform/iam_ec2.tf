@@ -110,20 +110,6 @@ resource "aws_iam_role_policy" "app_instance_s3_read" {
   policy = data.aws_iam_policy_document.app_instance_s3_read.json
 }
 
-# So container stdout (api/dashboard/mlflow, via the awslogs docker logging
-# driver) reaches CloudWatch Logs -- the only way to see what's happening on
-# this box without ssm:SendCommand access to exec into it directly.
-data "aws_iam_policy_document" "app_instance_logs_write" {
-  statement {
-    sid       = "WriteAppLogs"
-    effect    = "Allow"
-    actions   = ["logs:CreateLogStream", "logs:PutLogEvents"]
-    resources = [aws_cloudwatch_log_group.app.arn]
-  }
-}
-
-resource "aws_iam_role_policy" "app_instance_logs_write" {
-  name   = "cloudwatch-logs-app"
-  role   = aws_iam_role.app_instance.id
-  policy = data.aws_iam_policy_document.app_instance_logs_write.json
-}
+# Container-stdout-to-CloudWatch-Logs (an instance-role policy for the
+# awslogs docker driver) was dropped along with the log group in
+# cloudwatch.tf -- see that file's comment.
