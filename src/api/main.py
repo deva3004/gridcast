@@ -11,7 +11,10 @@ every request too, so a cache refresh takes effect without an API restart.
 
 from __future__ import annotations
 
+import json
+import logging
 import os
+import time
 from pathlib import Path
 
 import mlflow
@@ -26,6 +29,9 @@ load_dotenv()
 MODEL_URI = "models:/gridcast-demand-forecaster-lightgbm@production"
 CACHE_PATH = Path("data/cache/latest_features.csv")
 HORIZONS = range(1, 25)
+
+logging.basicConfig(level=logging.INFO, format="%(message)s")
+logger = logging.getLogger("gridcast.api")
 
 mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
 model = mlflow.pyfunc.load_model(MODEL_URI)
@@ -55,7 +61,16 @@ def forecast(respondent: str) -> dict:
         [{**base_features, "horizon": h} for h in HORIZONS]
     )[FEATURE_COLUMNS]
 
+    start = time.perf_counter()
     predictions = model.predict(inputs)
+    latency_ms = (time.perf_counter() - start) * 1000
+
+    logger.info(json.dumps({
+        "respondent": respondent,
+        "origin_hour_utc": origin_hour.isoformat(),
+        "prediction_count": len(HORIZONS),
+        "latency_ms": round(latency_ms, 2),
+    }))
 
     return {
         "respondent": respondent,

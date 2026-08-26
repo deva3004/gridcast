@@ -15,11 +15,14 @@ data "aws_ami" "al2023" {
 
 locals {
   user_data = templatefile("${path.module}/templates/user_data.sh.tpl", {
-    aws_region      = var.aws_region
-    account_id      = data.aws_caller_identity.current.account_id
-    ssm_param_name  = var.ssm_snowflake_param_name
-    api_image       = "${aws_ecr_repository.this["api"].repository_url}:latest"
-    dashboard_image = "${aws_ecr_repository.this["dashboard"].repository_url}:latest"
+    aws_region       = var.aws_region
+    account_id       = data.aws_caller_identity.current.account_id
+    ssm_param_name   = var.ssm_snowflake_param_name
+    api_image        = "${aws_ecr_repository.this["api"].repository_url}:latest"
+    dashboard_image  = "${aws_ecr_repository.this["dashboard"].repository_url}:latest"
+    artifacts_bucket = var.deploy_artifacts_bucket
+    artifacts_prefix = var.deploy_artifacts_s3_prefix
+    log_group_name   = aws_cloudwatch_log_group.app.name
   })
 }
 

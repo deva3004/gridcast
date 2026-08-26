@@ -90,3 +90,40 @@ resource "aws_iam_role_policy" "app_instance_ssm_read" {
   role   = aws_iam_role.app_instance.id
   policy = data.aws_iam_policy_document.app_instance_ssm_read.json
 }
+
+# Read-only access to the pretrained model + feature-cache snapshot, uploaded
+# out-of-band to S3 (same reasoning as the SSM parameter above -- Snowflake
+# is unreachable right now, so these are pulled in pre-computed rather than
+# regenerated at boot). Scoped to one prefix, not the whole bucket.
+data "aws_iam_policy_document" "app_instance_s3_read" {
+  statement {
+    sid       = "ReadDeployArtifacts"
+    effect    = "Allow"
+    actions   = ["s3:GetObject"]
+    resources = ["arn:aws:s3:::${var.deploy_artifacts_bucket}/${var.deploy_artifacts_s3_prefix}/*"]
+  }
+}
+
+resource "aws_iam_role_policy" "app_instance_s3_read" {
+  name   = "s3-read-deploy-artifacts"
+  role   = aws_iam_role.app_instance.id
+  policy = data.aws_iam_policy_document.app_instance_s3_read.json
+}
+
+# So container stdout (api/dashboard/mlflow, via the awslogs docker logging
+# driver) reaches CloudWatch Logs -- the only way to see what's happening on
+# this box without ssm:SendCommand access to exec into it directly.
+data "aws_iam_policy_document" "app_instance_logs_write" {
+  statement {
+    sid       = "WriteAppLogs"
+    effect    = "Allow"
+    actions   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+    resources = [aws_cloudwatch_log_group.app.arn]
+  }
+}
+
+resource "aws_iam_role_policy" "app_instance_logs_write" {
+  name   = "cloudwatch-logs-app"
+  role   = aws_iam_role.app_instance.id
+  policy = data.aws_iam_policy_document.app_instance_logs_write.json
+}

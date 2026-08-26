@@ -27,3 +27,21 @@ variable "ssm_snowflake_param_name" {
   type        = string
   default     = "/gridcast/snowflake-env"
 }
+
+variable "deploy_artifacts_bucket" {
+  description = "S3 bucket the app instance pulls the pretrained model + feature-cache snapshot from at boot"
+  type        = string
+  default     = "gridcast"
+}
+
+variable "deploy_artifacts_s3_prefix" {
+  description = "Prefix under deploy_artifacts_bucket holding model_lightgbm.pkl and latest_features.csv -- uploaded out-of-band, not by Terraform"
+  type        = string
+  default     = "deploy-artifacts"
+}
+
+variable "log_retention_days" {
+  description = "Retention for the app CloudWatch log group"
+  type        = number
+  default     = 14
+}
